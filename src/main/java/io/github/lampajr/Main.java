@@ -18,7 +18,7 @@ public class Main {
     static long loadDurationInSeconds = 10;
     static long requestDurationInNanoseconds = 1_000L;
     static long serverDelayInNanoseconds = 10_000L;
-    static int serverDelayFrequencyPercentage = 0;
+    static double serverDelayFrequencyPercentage = 0.0;
     static Consumer<Long> waitTill = Main::spinWaitTill;
 
     /**
@@ -43,7 +43,7 @@ public class Main {
             serverDelayInNanoseconds = parseAsLong(args[3], serverDelayInNanoseconds);
         }
         if (length > 4) {
-            serverDelayFrequencyPercentage = parseAsInt(args[4], serverDelayFrequencyPercentage);
+            serverDelayFrequencyPercentage = parseAsDouble(args[4], serverDelayFrequencyPercentage);
         }
         if (length > 5) {
             switch (args[5].toLowerCase()) {
@@ -148,9 +148,9 @@ public class Main {
                 // request received, simulate some work
                 long delay = 0;
                 if (serverDelayFrequencyPercentage > 0) {
-                    if (rnd.nextInt(1, 101) <= serverDelayFrequencyPercentage) {
+                    if ((rnd.nextDouble() * 100) < serverDelayFrequencyPercentage) {
                         delay = serverDelayInNanoseconds;
-                        System.out.println("adding delay = " + delay);
+//                        System.out.println("adding delay = " + delay);
                     }
                 }
 
@@ -307,6 +307,15 @@ public class Main {
     private static long parseAsLong(String arg, long defaultValue) {
         try {
             return Long.parseLong(arg);
+        } catch (NumberFormatException e) {
+            System.out.println("unable to parse " + arg + ", using default value " + defaultValue);
+            return defaultValue;
+        }
+    }
+
+    private static double parseAsDouble(String arg, double defaultValue) {
+        try {
+            return Double.parseDouble(arg);
         } catch (NumberFormatException e) {
             System.out.println("unable to parse " + arg + ", using default value " + defaultValue);
             return defaultValue;
